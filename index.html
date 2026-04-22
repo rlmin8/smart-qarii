@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Qari - القارئ الذكي</title>
+    
+    <style>
+        :root {
+            --brown-dark: #5C3A21;
+            --brown: #7B4F2A;
+            --brown-light: #B08968;
+            --beige: #F1E3D3;
+            --cream: #FBF7F2;
+            --white: #FFFFFF;
+            --border: #E6D5C3;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background: var(--cream);
+            color: var(--brown-dark);
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        }
+
+        .wrap {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            direction: rtl;
+        }
+
+        h2 {
+            margin: 5px 0;
+            color: var(--brown-dark);
+        }
+
+        .sub {
+            color: var(--brown-light);
+            margin-bottom: 15px;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            background: var(--brown);
+            color: white;
+        }
+
+        .btn.ghost {
+            background: var(--beige);
+            color: var(--brown-dark);
+        }
+
+        .btn.primary {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .pill {
+            padding: 5px 12px;
+            background: var(--cream);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1.2em;
+            resize: vertical;
+            margin-top: 10px;
+        }
+
+        .hint { font-size: 0.85em; color: #888; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="wrap">
+        <h2>📖 قياس مستوى القراءة (تجريبي)</h2>
+        <p class="sub">يسجل صوتك ويحسب سرعة القراءة (WPM) + دقة التطابق + تقدير مستوى.</p>
+
+        <section class="card">
+            <h3>1) اختر نصًا للقراءة</h3>
+            <div class="row">
+                <button class="btn ghost" onclick="loadText(0)">نص سهل</button>
+                <button class="btn ghost" onclick="loadText(1)">نص متوسط</button>
+                <button class="btn ghost" onclick="loadText(2)">نص عالي</button>
+            </div>
+
+            <div class="row controls">
+                <span class="label">حجم الخط</span>
+                <button class="btn" id="fontDec" type="button">A-</button>
+                <button class="btn" id="fontInc" type="button">A+</button>
+                <span class="pill" id="fontSizeLabel">16px</span>
+                <button class="btn ghost" id="fontReset" type="button">إعادة</button>
+            </div>
+
+            <p class="hint">تقدر تعدّل النص قبل القراءة.</p>
+            <textarea id="target"></textarea>
+        </section>
+
+        <section class="card">
+            <h3>2) سجّل قراءتك</h3>
+            <p class="warn" id="supportMsg"></p>
+
+            <div class="row">
+                <button class="btn primary" id="startBtn" type="button">🎙️ ابدأ التسجيل</button>
+                <button class="btn" id="stopBtn" type="button" disabled>⏹️ إيقاف</button>
+                <span class="pill" id="timer">الوقت: 0.0 ث</span>
+                <span class="pill" id="status">الحالة: جاهز</span>
+            </div>
+
+            <p class="hint">بعد الإيقاف سيظهر تفريغ الصوت والنتائج.</p>
+            <textarea id="spoken" placeholder="هنا سيظهر تفريغ الصوت (Speech-to-Text)"></textarea> 
+        </section>
+    </div>
+
+    <script>
+        const texts = [
+            "ذهب محمد إلى المدرسة في الصباح الباكر وكان سعيداً جداً بلقاء أصدقائه.",
+            "تعتبر القراءة من أهم المهارات التي يجب على الإنسان تطويرها لزيادة معرفته وثقافته في الحياة.",
+            "إن استكشاف الفضاء الخارجي يمثل تحدياً كبيراً للبشرية ويتطلب تقنيات متطورة وتعاوناً دولياً واسعاً."
+        ];
+
+        let targetEl = document.getElementById('target');
+        let spokenEl = document.getElementById('spoken');
+        let timerEl = document.getElementById('timer');
+        let statusEl = document.getElementById('status');
+        let supportMsg = document.getElementById('supportMsg');
+
+        // دالة تحميل النصوص
+        function loadText(i) {
+            targetEl.value = texts[i];
+            spokenEl.value = "";
+            timerEl.textContent = "الوقت: 0.0 ث";
+            statusEl.textContent = "الحالة: جاهز";
+            supportMsg.textContent = "";
+        }
+
+        // إعدادات الخط (مثال بسيط)
+        let currentSize = 16;
+        document.getElementById('fontInc').onclick = () => {
+            currentSize += 2;
+            targetEl.style.fontSize = currentSize + 'px';
+            document.getElementById('fontSizeLabel').textContent = currentSize + 'px';
+        };
+
+        document.getElementById('fontDec').onclick = () => {
+            if(currentSize > 12) currentSize -= 2;
+            targetEl.style.fontSize = currentSize + 'px';
+            document.getElementById('fontSizeLabel').textContent = currentSize + 'px';
+        };
+
+        // تفعيل النص الأول عند التشغيل
+        window.onload = () => loadText(0);
+
+        // ملاحظة: أكواد التسجيل الصوتي تتطلب متصفح يدعم SpeechRecognition
+        // أضفت لك الهيكل الأساسي ليعمل الموقع كواجهة
+    </script>
+</body>
+</html>
+
