@@ -7,7 +7,6 @@
     <title>Smart Qari - القارئ الذكي</title>
     
     <style>
-        /* ====== الألوان والتنسيق (CSS) ====== */
         :root {
             --brown-dark: #5C3A21;
             --brown: #7B4F2A;
@@ -16,6 +15,7 @@
             --cream: #FBF7F2;
             --white: #FFFFFF;
             --border: #E6D5C3;
+            --success: #27ae60;
         }
 
         * { box-sizing: border-box; }
@@ -46,6 +46,30 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
+        /* لوحة النتائج الذكية */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .result-item {
+            background: var(--beige);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result-value {
+            display: block;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: var(--brown-dark);
+        }
+
+        .result-label { font-size: 0.8em; color: var(--brown); }
+
         .row {
             display: flex;
             gap: 10px;
@@ -66,7 +90,7 @@
         }
 
         .btn.ghost { background: var(--beige); color: var(--brown-dark); }
-        .btn.primary { background: #27ae60; color: white; }
+        .btn.primary { background: var(--success); color: white; }
         .btn:disabled { background: #ccc; cursor: not-allowed; }
 
         .pill {
@@ -79,64 +103,70 @@
 
         textarea {
             width: 100%;
-            height: 150px;
+            height: 120px;
             padding: 15px;
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 1.2em;
             resize: vertical;
-            margin-top: 10px;
             font-family: inherit;
         }
 
-        .hint { font-size: 0.85em; color: #888; margin-top: 5px; }
-        .warn { color: #e67e22; font-weight: bold; margin-bottom: 10px; }
+        .warn { color: #e67e22; font-weight: bold; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
     <div class="wrap">
-        <h2>📖 قياس مستوى القراءة (تجريبي)</h2>
-        <p class="sub">يسجل صوتك ويحسب سرعة القراءة (WPM) + دقة التطابق.</p>
+        <h2>📖 Smart Qari - القارئ الذكي</h2>
+        <p class="sub">نظام ذكي لتحليل جودة وقوة القراءة العربية.</p>
 
         <section class="card">
-            <h3>1) اختر نصًا للقراءة</h3>
+            <h3>1) النص المطلوب</h3>
             <div class="row">
                 <button class="btn ghost" onclick="loadText(0)">نص سهل</button>
                 <button class="btn ghost" onclick="loadText(1)">نص متوسط</button>
-                <button class="btn ghost" onclick="loadText(2)">نص عالي</button>
+                <button class="btn ghost" onclick="loadText(2)">نص متقدم</button>
             </div>
-
-            <div class="row controls">
-                <span class="label">حجم الخط</span>
-                <button class="btn" id="fontDec" type="button">A-</button>
-                <button class="btn" id="fontInc" type="button">A+</button>
-                <span class="pill" id="fontSizeLabel">18px</span>
-            </div>
-
             <textarea id="target"></textarea>
         </section>
 
         <section class="card">
-            <h3>2) سجّل قراءتك</h3>
+            <h3>2) تسجيل القراءة</h3>
             <p id="supportMsg" class="warn"></p>
-
             <div class="row">
-                <button class="btn primary" id="startBtn" type="button">🎙️ ابدأ التسجيل</button>
-                <button class="btn" id="stopBtn" type="button" disabled>⏹️ إيقاف</button>
-                <span class="pill" id="status">الحالة: جاهز</span>
+                <button class="btn primary" id="startBtn">🎙️ ابدأ التسجيل</button>
+                <button class="btn" id="stopBtn" disabled>⏹️ إيقاف وتحليل</button>
+                <span class="pill" id="timer">00:00</span>
+                <span class="pill" id="status">جاهز</span>
             </div>
+            <textarea id="spoken" placeholder="سيظهر تفريغ صوتك هنا..."></textarea> 
+        </section>
 
-            <p class="hint">بعد الإيقاف سيظهر تفريغ الصوت أدناه:</p>
-            <textarea id="spoken" placeholder="هنا سيظهر ما تقوله..."></textarea> 
+        <section class="card">
+            <h3>3) التحليل الذكي للنتائج</h3>
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-label">السرعة (كلمة/د)</span>
+                    <span class="result-value" id="wpm">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">الدقة المئوية</span>
+                    <span class="result-value" id="accuracy">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">التقييم العام</span>
+                    <span class="result-value" id="level">-</span>
+                </div>
+            </div>
         </section>
     </div>
 
     <script>
         const texts = [
-            "ذهب محمد إلى المدرسة في الصباح الباكر وكان سعيداً جداً بلقاء أصدقائه.",
-            "تعتبر القراءة من أهم المهارات التي يجب على الإنسان تطويرها لزيادة معرفته وثقافته.",
-            "إن استكشاف الفضاء الخارجي يمثل تحدياً كبيراً ويتطلب تقنيات متطورة وتعاوناً دولياً."
+            "ذهب محمد إلى المدرسة في الصباح الباكر وكان سعيداً جداً.",
+            "تعتبر القراءة من أهم المهارات التي يجب على الإنسان تطويرها باستمرار.",
+            "إن استكشاف الفضاء يمثل تحدياً كبيراً يتطلب تقنيات متطورة وتعاوناً دولياً."
         ];
 
         const targetEl = document.getElementById('target');
@@ -144,70 +174,95 @@
         const statusEl = document.getElementById('status');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const supportMsg = document.getElementById('supportMsg');
-        const fontSizeLabel = document.getElementById('fontSizeLabel');
+        const timerEl = document.getElementById('timer');
+        
+        // عناصر النتائج
+        const wpmVal = document.getElementById('wpm');
+        const accVal = document.getElementById('accuracy');
+        const levelVal = document.getElementById('level');
 
-        let currentSize = 18;
-
-        // دالة تغيير حجم الخط
-        document.getElementById('fontInc').onclick = () => {
-            currentSize += 2;
-            targetEl.style.fontSize = currentSize + 'px';
-            fontSizeLabel.textContent = currentSize + 'px';
-        };
-        document.getElementById('fontDec').onclick = () => {
-            if(currentSize > 12) currentSize -= 2;
-            targetEl.style.fontSize = currentSize + 'px';
-            fontSizeLabel.textContent = currentSize + 'px';
-        };
+        let startTime, timerInterval;
 
         function loadText(i) {
             targetEl.value = texts[i];
             spokenEl.value = "";
-            statusEl.textContent = "الحالة: جاهز";
+            resetResults();
         }
 
-        // إعدادات التعرف على الكلام
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        function resetResults() {
+            wpmVal.innerText = "-";
+            accVal.innerText = "-";
+            levelVal.innerText = "-";
+        }
 
+        // إعداد الميكروفون
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            supportMsg.textContent = "⚠️ المتصفح الحالي لا يدعم التسجيل. جرب Google Chrome.";
-            startBtn.disabled = true;
+            document.getElementById('supportMsg').innerText = "⚠️ المتصفح لا يدعم التسجيل. استخدم Chrome.";
         } else {
             const recognition = new SpeechRecognition();
             recognition.lang = 'ar-SA';
             recognition.continuous = true;
-            recognition.interimResults = true;
 
             startBtn.onclick = () => {
                 recognition.start();
-                statusEl.textContent = "الحالة: جاري الاستماع...";
+                startTime = Date.now();
                 startBtn.disabled = true;
                 stopBtn.disabled = false;
+                statusEl.innerText = "جاري الاستماع...";
                 spokenEl.value = "";
+                startTimer();
             };
 
             stopBtn.onclick = () => {
                 recognition.stop();
-                statusEl.textContent = "الحالة: تم الإيقاف.";
-                startBtn.disabled = false;
                 stopBtn.disabled = true;
+                startBtn.disabled = false;
+                statusEl.innerText = "تم التحليل.";
+                clearInterval(timerInterval);
+                calculateResults();
             };
 
             recognition.onresult = (event) => {
-                let interimTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        spokenEl.value += event.results[i][0].transcript + " ";
-                    }
+                let text = "";
+                for (let i = 0; i < event.results.length; i++) {
+                    text += event.results[i][0].transcript;
                 }
+                spokenEl.value = text;
             };
+        }
 
-            recognition.onerror = (event) => {
-                statusEl.textContent = "خطأ: " + event.error;
-                startBtn.disabled = false;
-                stopBtn.disabled = true;
-            };
+        function startTimer() {
+            let seconds = 0;
+            timerInterval = setInterval(() => {
+                seconds++;
+                let m = Math.floor(seconds / 60);
+                let s = seconds % 60;
+                timerEl.innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function calculateResults() {
+            const original = targetEl.value.trim().split(/\s+/);
+            const recorded = spokenEl.value.trim().split(/\s+/);
+            const timeTaken = (Date.now() - startTime) / 1000 / 60; // بالدقائق
+
+            // 1. حساب السرعة
+            const wpm = Math.round(recorded.length / timeTaken) || 0;
+            wpmVal.innerText = wpm;
+
+            // 2. حساب الدقة (بسيط)
+            let matches = 0;
+            recorded.forEach(word => {
+                if (targetEl.value.includes(word)) matches++;
+            });
+            const accuracy = Math.round((matches / original.length) * 100);
+            accVal.innerText = (accuracy > 100 ? 100 : accuracy) + "%";
+
+            // 3. تحديد المستوى
+            if (accuracy > 85 && wpm > 40) levelVal.innerText = "طلّاقـة";
+            else if (accuracy > 60) levelVal.innerText = "متوسط";
+            else levelVal.innerText = "مبتدئ";
         }
 
         window.onload = () => loadText(0);
