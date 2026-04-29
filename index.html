@@ -79,6 +79,13 @@
             direction: rtl;
             text-align: right;
             line-height: 1.6;
+            background: #fff;
+        }
+
+        /* تمييز الخانة التي يمكن الكتابة فيها */
+        #target {
+            border: 2px solid var(--beige);
+            background: var(--white);
         }
 
         .results-grid {
@@ -103,6 +110,14 @@
         }
 
         .result-label { font-size: 0.8em; color: var(--brown); font-weight: bold; }
+        
+        .hint {
+            font-size: 0.85em;
+            color: var(--brown-light);
+            margin-top: -10px;
+            margin-bottom: 10px;
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -111,23 +126,24 @@
         <h2>📖 Smart Qari - القارئ الذكي</h2>
 
         <section class="card">
-            <h3>1) اختر المستوى</h3>
+            <h3>1) اختر نصاً أو اكتب نصك الخاص</h3>
+            <span class="hint">* يمكنك مسح النص أدناه وكتابة أي نص تريد التدرب عليه.</span>
             <div class="row">
-                <button class="btn ghost" onclick="loadText(0)">مستوى مبتدئ</button>
-                <button class="btn ghost" onclick="loadText(1)">مستوى متوسط</button>
-                <button class="btn ghost" onclick="loadText(2)">مستوى متقدم</button>
+                <button class="btn ghost" onclick="loadText(0)">مبتدئ</button>
+                <button class="btn ghost" onclick="loadText(1)">متوسط</button>
+                <button class="btn ghost" onclick="loadText(2)">متقدم</button>
             </div>
-            <textarea id="target" readonly></textarea>
+            <textarea id="target" placeholder="اكتب أو الصق نصك هنا للتدرب عليه..."></textarea>
         </section>
 
         <section class="card">
-            <h3>2) التسجيل</h3>
+            <h3>2) ابدأ القراءة</h3>
             <div class="row">
                 <button class="btn primary" id="startBtn">🎙️ ابدأ التسجيل</button>
                 <button class="btn" style="background:#e74c3c" id="stopBtn" disabled>⏹️ إيقاف وتحليل</button>
                 <span id="timer" style="font-weight:bold">00:00</span>
             </div>
-            <textarea id="spoken" placeholder="سيظهر كلامك هنا..."></textarea> 
+            <textarea id="spoken" placeholder="سيظهر كلامك المسجل هنا..." readonly></textarea> 
         </section>
 
         <section class="card">
@@ -167,6 +183,10 @@
         function loadText(i) {
             targetEl.value = texts[i];
             spokenEl.value = "";
+            resetResults();
+        }
+
+        function resetResults() {
             document.getElementById('wpm').innerText = "-";
             document.getElementById('accuracy').innerText = "-";
             document.getElementById('level').innerText = "-";
@@ -180,6 +200,10 @@
             recognition.interimResults = true;
 
             startBtn.onclick = () => {
+                if(!targetEl.value.trim()) {
+                    alert("الرجاء كتابة نص أولاً!");
+                    return;
+                }
                 recognition.start();
                 startTime = Date.now();
                 startBtn.disabled = true;
@@ -222,9 +246,12 @@
 
             const wpm = Math.round(recordedWords.length / timeInMinutes) || 0;
             let matches = 0;
+            
+            // مقارنة الكلمات المسموعة بالنص الموجود في الخانة
             recordedWords.forEach(word => {
                 if (targetEl.value.includes(word) && word.length > 2) matches++;
             });
+            
             const acc = Math.min(Math.round((matches / originalWords.length) * 100), 100);
 
             document.getElementById('wpm').innerText = wpm;
