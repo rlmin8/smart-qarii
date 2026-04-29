@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -67,16 +65,16 @@
 
         textarea {
             width: 100%;
-            height: 120px;
+            height: 140px;
             padding: 15px;
             border: 1px solid var(--border);
             border-radius: 10px;
             font-size: 1.3em;
             font-family: inherit;
             background: var(--cream);
+            line-height: 1.5;
         }
 
-        /* لوحة النتائج */
         .results-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
@@ -106,24 +104,24 @@
         <p class="sub">حلّل جودة قراءتك، سرعتك، ودقتك فوراً</p>
 
         <section class="card">
-            <h3>1) اختر النص</h3>
+            <h3>1) اختر المستوى المطلوب</h3>
             <div class="row">
-                <button class="btn ghost" onclick="loadText(0)">نص سهل</button>
-                <button class="btn ghost" onclick="loadText(1)">نص متوسط</button>
-                <button class="btn ghost" onclick="loadText(2)">نص متقدم</button>
+                <button class="btn ghost" onclick="loadText(0)">المستوى الأول</button>
+                <button class="btn ghost" onclick="loadText(1)">المستوى المتوسط</button>
+                <button class="btn ghost" onclick="loadText(2)">المستوى الأخير</button>
             </div>
-            <textarea id="target"></textarea>
+            <textarea id="target" readonly></textarea>
         </section>
 
         <section class="card">
-            <h3>2) ابدأ القراءة</h3>
+            <h3>2) ابدأ القراءة الآن</h3>
             <p id="supportMsg" class="warn"></p>
             <div class="row">
                 <button class="btn primary" id="startBtn">🎙️ ابدأ التسجيل</button>
                 <button class="btn" id="stopBtn" disabled>⏹️ إيقاف وتحليل</button>
                 <span class="pill" id="timer">00:00</span>
             </div>
-            <textarea id="spoken" placeholder="سيظهر كلامك هنا بعد البدء..."></textarea> 
+            <textarea id="spoken" placeholder="سيظهر كلامك المسجل هنا..."></textarea> 
         </section>
 
         <section class="card">
@@ -138,7 +136,7 @@
                     <span class="result-value" id="accuracy">-</span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">المستوى</span>
+                    <span class="result-label">التقييم العام</span>
                     <span class="result-value" id="level">-</span>
                 </div>
             </div>
@@ -146,10 +144,11 @@
     </div>
 
     <script>
+        // النصوص الجديدة التي طلبتها
         const texts = [
-            "ذهب محمد إلى المدرسة في الصباح الباكر وكان سعيداً جداً بلقاء أصدقائه الجدد.",
-            "تعتبر القراءة من أهم المهارات التي يجب على الإنسان تطويرها لزيادة معرفته وثقافته العامة.",
-            "إن استكشاف الفضاء الخارجي يمثل تحدياً كبيراً للبشرية ويتطلب تقنيات متطورة وتعاوناً دولياً واسعاً."
+            "المملكة العربية السعودية هي أرض الحرمين الشريفين ومهبط الوحي.",
+            "الجهود الوطنية لتكريس مفهوم الاستدامة البيئية، محولةً المساحات الشاسعة إلى واحات غنّاء تعكس طموح الإنسان السعودي.",
+            "إن التمازج الفريد بين عبق الأصالة التاريخية والقفزات التقنية المتسارعة، يبرهن على مرونة الهوية السعودية وقدرتها على استيعاب الحداثة دون التفريط في المبادئ الثابتة."
         ];
 
         const targetEl = document.getElementById('target');
@@ -171,10 +170,9 @@
             levelVal.innerText = "-";
         }
 
-        // إعداد التسجيل الصوتي
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) {
-            document.getElementById('supportMsg').innerText = "⚠️ متصفحك لا يدعم الميكروفون. جرب Chrome.";
+            document.getElementById('supportMsg').innerText = "⚠️ المتصفح لا يدعم التسجيل. استخدم Chrome.";
         } else {
             const recognition = new SpeechRecognition();
             recognition.lang = 'ar-SA';
@@ -222,11 +220,9 @@
             const recordedWords = spokenEl.value.trim().split(/\s+/);
             const durationInMinutes = (Date.now() - startTime) / 60000;
 
-            // 1. السرعة (WPM)
             const wpm = Math.round(recordedWords.length / durationInMinutes) || 0;
             wpmVal.innerText = wpm;
 
-            // 2. الدقة (مقارنة الكلمات)
             let matches = 0;
             const targetText = targetEl.value;
             recordedWords.forEach(word => {
@@ -235,8 +231,7 @@
             const acc = Math.min(Math.round((matches / originalWords.length) * 100), 100);
             accVal.innerText = acc + "%";
 
-            // 3. المستوى
-            if (acc > 80 && wpm > 50) levelVal.innerText = "طليق 🚀";
+            if (acc > 80 && wpm > 45) levelVal.innerText = "طليق 🚀";
             else if (acc > 50) levelVal.innerText = "متوسط 👍";
             else levelVal.innerText = "مبتدئ 🌱";
         }
@@ -245,3 +240,4 @@
     </script>
 </body>
 </html>
+
