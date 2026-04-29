@@ -6,7 +6,6 @@
     <title>Smart Qari - القارئ الذكي</title>
     
     <style>
-        /* ====== الألوان والتنسيق ====== */
         :root {
             --brown-dark: #5C3A21;
             --brown: #7B4F2A;
@@ -25,7 +24,8 @@
             background: var(--cream);
             color: var(--brown-dark);
             font-family: system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
+            direction: rtl;
+            text-align: right;
         }
 
         .wrap {
@@ -34,23 +34,29 @@
             padding: 20px;
         }
 
-        h2 { text-align: center; color: var(--brown-dark); margin-bottom: 5px; }
-        .sub { text-align: center; color: var(--brown-light); margin-bottom: 25px; }
+        h2 { text-align: center; color: var(--brown-dark); }
 
         .card {
             background: var(--white);
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 12px;
             border: 1px solid var(--border);
             margin-bottom: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
 
-        .row { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; align-items: center; }
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
         .btn {
-            padding: 12px 20px;
-            border-radius: 10px;
+            padding: 10px 20px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-weight: bold;
@@ -60,83 +66,83 @@
         }
 
         .btn.ghost { background: var(--beige); color: var(--brown-dark); }
-        .btn.primary { background: var(--success); }
-        .btn:disabled { background: #ccc; cursor: not-allowed; }
+        .btn.primary { background: var(--success); color: white; }
 
         textarea {
             width: 100%;
-            height: 140px;
+            height: 150px;
             padding: 15px;
             border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 1.3em;
-            font-family: inherit;
-            background: var(--cream);
-            line-height: 1.5;
+            border-radius: 8px;
+            font-size: 1.4em;
+            resize: none;
+            direction: rtl;
+            text-align: right;
+            line-height: 1.6;
         }
 
         .results-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
-            margin-top: 10px;
+            margin-top: 15px;
         }
 
         .result-item {
             background: var(--beige);
             padding: 15px;
-            border-radius: 12px;
+            border-radius: 10px;
             text-align: center;
-            border: 1px solid var(--border);
         }
 
-        .result-value { display: block; font-size: 1.6em; font-weight: bold; color: var(--brown-dark); }
-        .result-label { font-size: 0.85em; color: var(--brown); }
+        .result-value {
+            display: block;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: var(--brown-dark);
+        }
 
-        .pill { padding: 6px 15px; background: var(--brown-dark); color: white; border-radius: 20px; font-size: 0.9em; }
-        .warn { color: #d35400; font-weight: bold; text-align: center; }
+        .result-label { font-size: 0.8em; color: var(--brown); font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="wrap">
         <h2>📖 Smart Qari - القارئ الذكي</h2>
-        <p class="sub">حلّل جودة قراءتك، سرعتك، ودقتك فوراً</p>
 
         <section class="card">
-            <h3>1) اختر المستوى المطلوب</h3>
+            <h3>1) اختر المستوى</h3>
             <div class="row">
-                <button class="btn ghost" onclick="loadText(0)">المستوى الأول</button>
-                <button class="btn ghost" onclick="loadText(1)">المستوى المتوسط</button>
-                <button class="btn ghost" onclick="loadText(2)">المستوى الأخير</button>
+                <button class="btn ghost" onclick="loadText(0)">مستوى مبتدئ</button>
+                <button class="btn ghost" onclick="loadText(1)">مستوى متوسط</button>
+                <button class="btn ghost" onclick="loadText(2)">مستوى متقدم</button>
             </div>
             <textarea id="target" readonly></textarea>
         </section>
 
         <section class="card">
-            <h3>2) ابدأ القراءة الآن</h3>
-            <p id="supportMsg" class="warn"></p>
+            <h3>2) التسجيل</h3>
             <div class="row">
                 <button class="btn primary" id="startBtn">🎙️ ابدأ التسجيل</button>
-                <button class="btn" id="stopBtn" disabled>⏹️ إيقاف وتحليل</button>
-                <span class="pill" id="timer">00:00</span>
+                <button class="btn" style="background:#e74c3c" id="stopBtn" disabled>⏹️ إيقاف وتحليل</button>
+                <span id="timer" style="font-weight:bold">00:00</span>
             </div>
-            <textarea id="spoken" placeholder="سيظهر كلامك المسجل هنا..."></textarea> 
+            <textarea id="spoken" placeholder="سيظهر كلامك هنا..."></textarea> 
         </section>
 
         <section class="card">
-            <h3>3) تقرير الأداء الذكي</h3>
+            <h3>3) النتائج</h3>
             <div class="results-grid">
                 <div class="result-item">
-                    <span class="result-label">الكلمات/دقيقة</span>
+                    <span class="result-label">الكلمات/د</span>
                     <span class="result-value" id="wpm">-</span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">نسبة الدقة</span>
+                    <span class="result-label">الدقة</span>
                     <span class="result-value" id="accuracy">-</span>
                 </div>
                 <div class="result-item">
-                    <span class="result-label">التقييم العام</span>
+                    <span class="result-label">المستوى</span>
                     <span class="result-value" id="level">-</span>
                 </div>
             </div>
@@ -144,11 +150,10 @@
     </div>
 
     <script>
-        // النصوص الجديدة التي طلبتها
         const texts = [
-            "المملكة العربية السعودية هي أرض الحرمين الشريفين ومهبط الوحي.",
-            "الجهود الوطنية لتكريس مفهوم الاستدامة البيئية، محولةً المساحات الشاسعة إلى واحات غنّاء تعكس طموح الإنسان السعودي.",
-            "إن التمازج الفريد بين عبق الأصالة التاريخية والقفزات التقنية المتسارعة، يبرهن على مرونة الهوية السعودية وقدرتها على استيعاب الحداثة دون التفريط في المبادئ الثابتة."
+            "تُعد المملكة العربية السعودية قبلة المسلمين وأرض الحرمين الشريفين، وهي تشهد اليوم نهضةً تنموية شاملة تستهدف بناء مستقبل واعد للأجيال القادمة.",
+            "إن الجهود الوطنية الحثيثة لتكريس مفاهيم الاستدامة البيئية والحفاظ على الموارد الطبيعية، نجحت في تحويل المساحات الشاسعة إلى واحات غناء تعكس بجلاء إرادة الإنسان السعودي وعزمه على التطوير والبناء المستمر.",
+            "إن هذا التمازج الفريد بين عبق الأصالة التاريخية العريقة والقفزات التقنية المتسارعة في شتى المجالات، يبرهن للعالم أجمع على مرونة الهوية الوطنية وقدرتها الفائقة على استيعاب أعقد معطيات الحداثة المعاصرة، مع التمسك الصارم بالقيم الروحية والمبادئ الراسخة التي صاغت وجدان هذا الكيان العظيم عبر الأزمان المتعاقبة."
         ];
 
         const targetEl = document.getElementById('target');
@@ -156,24 +161,19 @@
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
         const timerEl = document.getElementById('timer');
-        const wpmVal = document.getElementById('wpm');
-        const accVal = document.getElementById('accuracy');
-        const levelVal = document.getElementById('level');
-
+        
         let startTime, timerInterval;
 
         function loadText(i) {
             targetEl.value = texts[i];
             spokenEl.value = "";
-            wpmVal.innerText = "-";
-            accVal.innerText = "-";
-            levelVal.innerText = "-";
+            document.getElementById('wpm').innerText = "-";
+            document.getElementById('accuracy').innerText = "-";
+            document.getElementById('level').innerText = "-";
         }
 
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            document.getElementById('supportMsg').innerText = "⚠️ المتصفح لا يدعم التسجيل. استخدم Chrome.";
-        } else {
+        if (SpeechRecognition) {
             const recognition = new SpeechRecognition();
             recognition.lang = 'ar-SA';
             recognition.continuous = true;
@@ -197,47 +197,42 @@
             };
 
             recognition.onresult = (event) => {
-                let currentText = "";
+                let t = "";
                 for (let i = 0; i < event.results.length; i++) {
-                    currentText += event.results[i][0].transcript;
+                    t += event.results[i][0].transcript;
                 }
-                spokenEl.value = currentText;
+                spokenEl.value = t;
             };
         }
 
         function startTimer() {
-            let sec = 0;
+            let s = 0;
             timerInterval = setInterval(() => {
-                sec++;
-                let m = Math.floor(sec / 60).toString().padStart(2, '0');
-                let s = (sec % 60).toString().padStart(2, '0');
-                timerEl.innerText = `${m}:${s}`;
+                s++;
+                let min = Math.floor(s/60).toString().padStart(2,'0');
+                let sec = (s%60).toString().padStart(2,'0');
+                timerEl.innerText = min + ":" + sec;
             }, 1000);
         }
 
         function calculateResults() {
             const originalWords = targetEl.value.trim().split(/\s+/);
             const recordedWords = spokenEl.value.trim().split(/\s+/);
-            const durationInMinutes = (Date.now() - startTime) / 60000;
+            const timeInMinutes = (Date.now() - startTime) / 60000;
 
-            const wpm = Math.round(recordedWords.length / durationInMinutes) || 0;
-            wpmVal.innerText = wpm;
-
+            const wpm = Math.round(recordedWords.length / timeInMinutes) || 0;
             let matches = 0;
-            const targetText = targetEl.value;
             recordedWords.forEach(word => {
-                if (targetText.includes(word) && word.length > 2) matches++;
+                if (targetEl.value.includes(word) && word.length > 2) matches++;
             });
             const acc = Math.min(Math.round((matches / originalWords.length) * 100), 100);
-            accVal.innerText = acc + "%";
 
-            if (acc > 80 && wpm > 45) levelVal.innerText = "طليق 🚀";
-            else if (acc > 50) levelVal.innerText = "متوسط 👍";
-            else levelVal.innerText = "مبتدئ 🌱";
+            document.getElementById('wpm').innerText = wpm;
+            document.getElementById('accuracy').innerText = acc + "%";
+            document.getElementById('level').innerText = acc > 80 ? "متقدم" : acc > 50 ? "متوسط" : "مبتدئ";
         }
 
         window.onload = () => loadText(0);
     </script>
 </body>
 </html>
-
